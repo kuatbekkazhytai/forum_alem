@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="golang.jpg" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <title>Forum</title>
+    <style>
+      html,
+      body,
+      p {
+        padding: 0;
+        border: 0;
+        margin: 0;
+      }
+      body {
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: center;
+        align-items: left;
+        height: 100vh;
+      }
+      h1 {
+        text-align: center;
+      }
+      p {
+        text-align: center;
+        font-size: 2rem;
+        color: black;
+      }
+      .link {
+        font-size: 1rem;
+      }
+    </style>
+    <!-- <link rel="stylesheet" href="main.css" /> -->
+  </head>
+  <body>
+    <a href="/logout">LOGOUT</a>
+    {{.}}
+    <h1>List Of Posts</h1>
+    {{range $index, $post := .Posts}}
+    <div class="card" style="width: 60rem; margin: auto;">
+      <div class="card-body" style="text-align: center;">
+        <h5 class="card-title">
+          <a href="/posts/show?id={{$post.Id}}">{{$post.Title}}</a>
+        </h5>
+        <h6 class="card-subtitle mb-2 text-muted">{{$post.CategoryName}}</h6>
+        <h6 class="card-subtitle mb-2 text-muted">
+          Created at:{{$post.Timestamp}}
+        </h6>
+        <p class="card-text">
+          {{$post.Description}}
+        </p>
+        <h6 class="card-subtitle mb-2 text-muted">
+          Made By:{{$post.AuthorName}}
+        </h6>
+        <a href="/posts/update?id={{.Id}}" class="card-link">update</a>
+        <a href="/posts/delete/process?id={{.Id}}" class="card-link">delete</a>
+      </div>
+    </div>
+    {{end}}
+
+    <p class="link"><a href="/posts/create">Please,create a post</a></p>
+  </body>
+</html>
