@@ -6,6 +6,8 @@ import (
 	users "../users"
 	"database/sql"
 	"net/http"
+	"strings"
+	"strconv"
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
@@ -23,7 +25,10 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	indexpagedata.Posts = AddDataToPost(w, indexpagedata.Posts)
 	
 	 // to add category name and author name
-	// _, indexpagedata.IndexUser = users.GetUser(w, r)
+	//  if indexpage.LoggedIn {
+	// 	_, indexpagedata.IndexUser = users.GetUser(w, r)
+	//  }
+	_, indexpagedata.IndexUser = users.GetUser(w, r)
 	// fmt.Println(indexpagedata.IndexUser)
 	// fmt.Println("new posts")
 	fmt.Println(indexpagedata.Posts)
@@ -43,7 +48,14 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 		return
 	}
-	post, err := OnePost(r)
+	var postpagedata PostPageData
+	var err error
+	postpagedata.LoggedIn = users.AlreadyLoggedIn(r)
+	_, postpagedata.UserData = users.GetUser(w, r)
+	postpagedata.ThisPost, err =OnePost(r)
+	postpagedata.Comments = getComments(w, postpagedata.ThisPost.Id)
+	postpagedata.Comments = AddDataToComments(w, postpagedata.Comments)
+	// post, err := OnePost(r)
 	if err == sql.ErrNoRows {
 		http.NotFound(w, r)
 		return
@@ -51,7 +63,8 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-	config.TPL.ExecuteTemplate(w, "show.html", post)
+	fmt.Println(postpagedata)
+	config.TPL.ExecuteTemplate(w, "show.html", postpagedata)
 }
 func Create(w http.ResponseWriter, r *http.Request) {
 	if !(users.AlreadyLoggedIn(r)) {
@@ -124,4 +137,40 @@ func DeleteProcess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, "/posts", http.StatusSeeOther)
+}
+func CreateCommentsProcess(w http.ResponseWriter, r *http.Request) {
+	comment := r.FormValue("comment")
+	fmt.Println(comment)
+	parameters := strings.Split(r.URL.Path, "/")
+	postString := ""
+
+	if len(parameters) == 3 && parameters[2] != "" {
+		postString = parameters[2]
+	} 
+
+	id, err := strconv.Atoi(postString)
+	if err != nil {
+		panic(err)
+	}
+
+	_, user := users.GetUser(w, r)
+	alreadyloggedin := users.AlreadyLoggedIn(r)
+	fmt.Println(alreadyloggedin)
+	fmt.Println(user.ID)
+	fmt.Println(id)
+	if comment != "" {
+		if alreadyloggedin {
+			_, err := config.DB.Exec(`INSERT INTO comments(text, author_id, post_id) VALUES(?, ?, ?)`,
+				comment, user.ID, id)
+				fmt.Println("/post" + postString)
+			if err != nil {
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+			// /posts/show?id=10
+			http.Redirect(w, r, "/posts/show?id="+postString, 301)
+		} else {
+			http.Redirect(w, r, "/login", 301)
+		}
+	}
 }

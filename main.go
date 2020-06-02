@@ -8,7 +8,7 @@ import (
 
 func main() {
 	http.HandleFunc("/", index)
-	
+
 	http.HandleFunc("/signup", users.Signup)
 	http.HandleFunc("/logout", users.Logou)
 	http.HandleFunc("/users", users.AllUsers)
@@ -16,6 +16,7 @@ func main() {
 	http.HandleFunc("/posts", posts.Index)
 	http.HandleFunc("/posts/create", posts.Create)
 	http.HandleFunc("/posts/show", posts.Show)
+	http.HandleFunc("/comments/", posts.CreateCommentsProcess)
 	http.HandleFunc("/posts/create/process", posts.CreateProcess)
 	http.HandleFunc("/posts/update", posts.Update)
 	http.HandleFunc("/posts/update/process", posts.UpdateProcess)

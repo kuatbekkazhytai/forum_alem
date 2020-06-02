@@ -1,8 +1,8 @@
 package category
 
 import (
-	"net/http"
 	config "../config"
+	"net/http"
 )
 
 type SessionData struct {
@@ -14,10 +14,9 @@ type SessionData struct {
 }
 
 type Category struct {
-	ID    int64  
-	Name  string 
+	ID   int64
+	Name string
 }
-
 
 func getCategories(w http.ResponseWriter) []Category {
 	rows, err := config.DB.Query("SELECT * FROM categories")

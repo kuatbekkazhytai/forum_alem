@@ -1,24 +1,24 @@
 package posts
 
 import (
+	config "../config"
+	user "../users"
 	"errors"
 	"fmt"
-	user "../users"
-	config "../config"
 	"net/http"
 	"strconv"
 	"strings"
 )
 
 type Post struct {
-	Id          int
-	Title       string
-	Description string
+	Id           int
+	Title        string
+	Description  string
 	Timestamp    string
-	Author       int 
-	AuthorName   string 
-	Category     int 
-	CategoryName string 
+	Author       int
+	AuthorName   string
+	Category     int
+	CategoryName string
 }
 
 type SessionData struct {
@@ -37,8 +37,8 @@ type IndexPageData struct {
 }
 type PostPageData struct {
 	LoggedIn     bool
-	UserData     User
-	CurrPost     Post
+	UserData     user.User
+	ThisPost     Post
 	UserLiked    bool
 	UserDisliked bool
 	Likes        int
@@ -46,10 +46,20 @@ type PostPageData struct {
 	Comments     []Comment
 }
 type Category struct {
-	ID    int64  
-	Name  string 
+	ID   int64
+	Name string
 }
-
+type Comment struct {
+	ID           int64  `json:"id"`
+	Text         string `json:"name"`
+	Timestamp    string `json:"timestamp"`
+	Author       int64  `json:"autor"`
+	AuthorName   string `json:"author_name"`
+	Post         int64  `json:"post"`
+	Likes        string `json:"likes"`
+	UserLiked    bool   `json:"userliked"`
+	UserDisliked bool   `json:"userdisliked"`
+}
 
 func getCategories(w http.ResponseWriter) []Category {
 	rows, err := config.DB.Query("SELECT * FROM categories")
@@ -70,13 +80,48 @@ func getCategories(w http.ResponseWriter) []Category {
 func GetCategoryName(w http.ResponseWriter, categoryid int) string {
 	categoryName := ""
 	err := config.DB.QueryRow("SELECT name FROM categories WHERE id=?",
-	categoryid).Scan(&categoryName)
+		categoryid).Scan(&categoryName)
 	if err != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 	}
 	return categoryName
 }
 
+func getComments(w http.ResponseWriter, postID int) []Comment {
+
+	commentRows, err := config.DB.Query("SELECT * FROM comments WHERE post_id=?", postID)
+
+	if err != nil {
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+	}
+
+	var comments []Comment
+	var comment Comment
+	for commentRows.Next() {
+		err = commentRows.Scan(&comment.ID, &comment.Text, &comment.Timestamp, &comment.Author, &comment.Post)
+		comments = append(comments, comment)
+		if err != nil {
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		}
+	}
+	return comments
+}
+func AddDataToComments(w http.ResponseWriter, comments []Comment) []Comment {
+
+	for i, comment := range comments {
+		err := config.DB.QueryRow("SELECT username FROM users WHERE id=?",
+			comment.Author).Scan(&comments[i].AuthorName)
+		if err != nil {
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		}
+
+		tempTimeArray := strings.Split(comment.Timestamp, "T")
+		comments[i].Timestamp = tempTimeArray[0]
+
+	}
+
+	return comments
+}
 
 func AllPosts() ([]Post, error) {
 
@@ -155,7 +200,7 @@ func PutPost(r *http.Request, user user.User) (Post, error) {
 		fmt.Println(err)
 		return post, errors.New("500. Internal Server Error." + err.Error())
 	}
-	
+
 	return post, nil
 }
 func UpdatePost(r *http.Request) error {
