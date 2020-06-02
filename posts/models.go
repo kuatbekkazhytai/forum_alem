@@ -35,6 +35,16 @@ type IndexPageData struct {
 	Categories []string
 	Posts      []Post
 }
+type PostPageData struct {
+	LoggedIn     bool
+	UserData     User
+	CurrPost     Post
+	UserLiked    bool
+	UserDisliked bool
+	Likes        int
+	Dislikes     int
+	Comments     []Comment
+}
 type Category struct {
 	ID    int64  
 	Name  string 

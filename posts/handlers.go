@@ -13,13 +13,20 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 		return
 	}
+	// fmt.Println("i got here")
 	var err error
 	var indexpagedata IndexPageData
 	indexpagedata.LoggedIn = users.AlreadyLoggedIn(r)
-	indexpagedata.Posts, err = AllPosts() // ps is a slice of posts
-	indexpagedata.Posts = AddDataToPost(w, indexpagedata.Posts) // to add category name and author name
-	_, indexpagedata.IndexUser = users.GetUser(w, r)
+	// fmt.Println(indexpagedata.LoggedIn)
+	indexpagedata.Posts, err = AllPosts()
+	// fmt.Println(indexpagedata.Posts)
+	indexpagedata.Posts = AddDataToPost(w, indexpagedata.Posts)
 	
+	 // to add category name and author name
+	// _, indexpagedata.IndexUser = users.GetUser(w, r)
+	// fmt.Println(indexpagedata.IndexUser)
+	// fmt.Println("new posts")
+	fmt.Println(indexpagedata.Posts)
 	for _, post := range indexpagedata.Posts {
 		category := GetCategoryName(w, post.Category)
 		indexpagedata.Categories = append(indexpagedata.Categories, category)	
