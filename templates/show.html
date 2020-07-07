@@ -31,7 +31,7 @@
       }
       p {
         text-align: center;
-        font-size: 2rem;
+        font-size: 1.5rem;
         color: black;
       }
       .link {
@@ -50,8 +50,8 @@
           <p class="card-text">{{.ThisPost.Description}}</p>
         </div>
         <div class="card-footer text-muted">
-          <p>
-            <i class="icon-user"></i> by {{.ThisPost.AuthorName}}
+          <p class="footer-p">
+              <i class="icon-user"></i> by {{.ThisPost.AuthorName}}
             | <i class="icon-calendar"></i> {{.ThisPost.Timestamp}}
             | <i class="icon-comment"></i>Comments: {{len .Comments}}
             | <i class="icon-tags"></i> Category : <span class="label label-info">{{.ThisPost.CategoryName}}</span>
