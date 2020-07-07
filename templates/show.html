@@ -15,9 +15,9 @@
       html,
       body,
       p {
-        padding: 0;
+        padding: 10px;
         border: 0;
-        margin: 0;
+        margin: 10px;
       }
       body {
         display: flex;
@@ -38,17 +38,30 @@
         font-size: 1rem;
       }
     </style>
-    <!-- <link rel="stylesheet" href="main.css" /> -->
   </head>
   <body>
     <a href="/logout">LOGOUT</a>
-    <h1>post presentation</h1>
+    <h1>View of post:{{.ThisPost.Title}}</h1>
     <!-- {{.ThisPost}} -->
-    <div class="card" style="width: 60rem; margin: auto;">
+
+    <div class="post">
+      <div class="card text-center">
+        <div class="card-header">
+          Category: {{.ThisPost.Category}}
+        </div>
+        <div class="card-body">
+          <p class="card-text">{{.ThisPost.Description}}</p>
+        </div>
+        <div class="card-footer text-muted">
+          Created at:{{.ThisPost.Timestamp}}
+        </div>
+        <a href="/posts/update?id={{.ThisPost.Id}}" class="card-link">update</a>
+        <a href="/posts/delete/process?id={{.ThisPost.Id}}" class="card-link"
+          >delete</a>
+      </div>
+    </div>
+    <!-- <div class="card" style="width: 60rem; margin: auto;">
       <div class="card-body" style="text-align: center;">
-        <h5 class="card-title">
-          <a href="/posts/show?id={{.ThisPost.Id}}">{{.ThisPost.Title}}</a>
-        </h5>
         <h6 class="card-subtitle mb-2 text-muted">
           {{.ThisPost.Category}}
         </h6>
@@ -63,7 +76,7 @@
           >delete</a
         >
       </div>
-    </div>
+    </div> -->
     <h1>Comments:</h1>
     {{range $index, $value := .Comments}}
     <div>
