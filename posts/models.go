@@ -1,13 +1,14 @@
 package posts
 
 import (
-	config "../config"
-	user "../users"
 	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
+
+	config "../config"
+	user "../users"
 )
 
 type Post struct {
@@ -165,6 +166,24 @@ func AddDataToPost(w http.ResponseWriter, posts []Post) []Post {
 	}
 
 	return posts
+}
+func AddToPost(w http.ResponseWriter, post Post) Post {
+
+	err := config.DB.QueryRow("SELECT username FROM users WHERE id=?", post.Author).Scan(&post.AuthorName)
+	if err != nil {
+		return post
+	}
+	tempTimeArray := strings.Split(post.Timestamp, "T")
+	post.Timestamp = tempTimeArray[0]
+
+	err = config.DB.QueryRow("SELECT name FROM categories WHERE id=?",
+		post.Category).Scan(&post.CategoryName)
+	if err != nil {
+		return post
+	}
+	// }
+
+	return post
 }
 
 func OnePost(r *http.Request) (Post, error) {

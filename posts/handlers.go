@@ -1,13 +1,14 @@
 package posts
 
 import (
+	"database/sql"
 	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+
 	config "../config"
 	users "../users"
-	"database/sql"
-	"net/http"
-	"strings"
-	"strconv"
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
@@ -15,26 +16,17 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 		return
 	}
-	// fmt.Println("i got here")
 	var err error
 	var indexpagedata IndexPageData
 	indexpagedata.LoggedIn = users.AlreadyLoggedIn(r)
-	// fmt.Println(indexpagedata.LoggedIn)
 	indexpagedata.Posts, err = AllPosts()
-	// fmt.Println(indexpagedata.Posts)
 	indexpagedata.Posts = AddDataToPost(w, indexpagedata.Posts)
-	
-	 // to add category name and author name
-	//  if indexpage.LoggedIn {
-	// 	_, indexpagedata.IndexUser = users.GetUser(w, r)
-	//  }
+
 	_, indexpagedata.IndexUser = users.GetUser(w, r)
-	// fmt.Println(indexpagedata.IndexUser)
-	// fmt.Println("new posts")
 	fmt.Println(indexpagedata.Posts)
 	for _, post := range indexpagedata.Posts {
 		category := GetCategoryName(w, post.Category)
-		indexpagedata.Categories = append(indexpagedata.Categories, category)	
+		indexpagedata.Categories = append(indexpagedata.Categories, category)
 	}
 	fmt.Println()
 	if err != nil {
@@ -52,10 +44,10 @@ func Show(w http.ResponseWriter, r *http.Request) {
 	var err error
 	postpagedata.LoggedIn = users.AlreadyLoggedIn(r)
 	_, postpagedata.UserData = users.GetUser(w, r)
-	postpagedata.ThisPost, err =OnePost(r)
+	postpagedata.ThisPost, err = OnePost(r)
+	postpagedata.ThisPost = AddToPost(w, postpagedata.ThisPost)
 	postpagedata.Comments = getComments(w, postpagedata.ThisPost.Id)
 	postpagedata.Comments = AddDataToComments(w, postpagedata.Comments)
-	// post, err := OnePost(r)
 	if err == sql.ErrNoRows {
 		http.NotFound(w, r)
 		return
@@ -84,7 +76,7 @@ func CreateProcess(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	_, user := users.GetUser(w, r)
 	_, err := PutPost(r, user)
 	if err != nil {
@@ -146,7 +138,7 @@ func CreateCommentsProcess(w http.ResponseWriter, r *http.Request) {
 
 	if len(parameters) == 3 && parameters[2] != "" {
 		postString = parameters[2]
-	} 
+	}
 
 	id, err := strconv.Atoi(postString)
 	if err != nil {
@@ -162,7 +154,7 @@ func CreateCommentsProcess(w http.ResponseWriter, r *http.Request) {
 		if alreadyloggedin {
 			_, err := config.DB.Exec(`INSERT INTO comments(text, author_id, post_id) VALUES(?, ?, ?)`,
 				comment, user.ID, id)
-				fmt.Println("/post" + postString)
+			fmt.Println("/post" + postString)
 			if err != nil {
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
