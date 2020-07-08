@@ -3,13 +3,41 @@
   <head>
     <meta charset="UTF-8" />
     <title>Users</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
   </head>
   <body>
-    {{range .}}
-    <h1>
-      {{.ID }} - {{.UserName}} - {{.Password}} - {{.First}} - {{.Last}} -
-      {{.SessionToken}}
-    </h1>
-    {{end}}
+    <div class="row">
+      <div class="col-md-12">
+          <div class="card">
+              <div class="card-header">
+                  <h4 class="card-title">Пользователи</h4>
+              </div>
+               <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <th>№</th>
+                                <th>UserName</th>
+                                <th>FirstName</th>
+                                <th>LastName</th>
+                                
+                            </thead>
+                            <tbody>
+                              {{range .}}
+                              <tr>
+                                <td>{{.ID }}</td>
+                                <td>{{.UserName}}</td>
+                                <td>{{.First}}</td>
+                                <td>{{.Last}}</td>
+                              </tr>   
+                              {{end}}                          
+                            </tbody>
+                        </tablе>
+                    </div>
+
+                </div>
+          </div>
+      </div>
+  </div>
   </body>
 </html>

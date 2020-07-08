@@ -29,62 +29,46 @@
         padding: 2px;
         margin: 2px;
       }
-      h1 {
+      h2 {
         text-align: center;
       }
       p {
         text-align: center;
-        font-size: 2rem;
+        font-size: 1rem;
         color: black;
       }
       .link {
         font-size: 1rem;
       }
+      
     </style>
   </head>
   <body>
+    <a href="/logout">LOGOUT</a>
     <div class="container">
-      <a href="/logout">LOGOUT</a>
-    <h1>List Of Posts</h1>
+    <h2>List Of Posts</h2>
     {{range $index, $post := .Posts}}
     <div class="post">
       <div class="card text-center">
         <div class="card-header">
-          Category: {{$post.CategoryName}}
+          <div class="card-title"><a href="/posts/show?id={{$post.Id}}"><h3>{{$post.Title}}</h3></a></div>
         </div>
         <div class="card-body">
-          <div class="card-title"><a href="/posts/show?id={{$post.Id}}"><h3>{{$post.Title}}</h3></a></div>
+          
           <p class="card-text">{{$post.Description}}</p>
-          <a href="#" class="btn btn-primary">Author: {{$post.AuthorName}}</a>
         </div>
         <div class="card-footer text-muted">
-          Created at:{{$post.Timestamp}}
+          <p class="footer-p">
+            <i class="icon-user"></i> by {{$post.AuthorName}}
+          | <i class="icon-calendar"></i> {{$post.Timestamp}}
+          | Category: {{$post.CategoryName}}
+        </p>
         </div>
       </div>
     </div>
     
-    <!-- <div class="card" style="width: 60rem; margin: auto;">
-      <div class="card-body" style="text-align: center;">
-        <h5 class="card-title">
-          <a href="/posts/show?id={{$post.Id}}">{{$post.Title}}</a>
-        </h5>
-        <h6 class="card-subtitle mb-2 text-muted">{{$post.CategoryName}}</h6>
-        <h6 class="card-subtitle mb-2 text-muted">
-          Created at:{{$post.Timestamp}}
-        </h6>
-        <p class="card-text">
-          {{$post.Description}}
-        </p>
-        <h6 class="card-subtitle mb-2 text-muted">
-          Made By:{{$post.AuthorName}}
-        </h6>
-        <a href="/posts/update?id={{.Id}}" class="card-link">update</a>
-        <a href="/posts/delete/process?id={{.Id}}" class="card-link">delete</a>
-      </div>
-    </div> -->
     {{end}}
 
-    <!-- <p class="link"><a href="/posts/create">Please,create a post</a></p> -->
     <a href="/posts/create" class="btn btn-primary mx-auto">Please,create a post</a>
     </div>
   </body>
