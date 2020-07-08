@@ -23,7 +23,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	indexpagedata.Posts = AddDataToPost(w, indexpagedata.Posts)
 
 	_, indexpagedata.IndexUser = users.GetUser(w, r)
-	fmt.Println(indexpagedata.Posts)
 	for _, post := range indexpagedata.Posts {
 		category := GetCategoryName(w, post.Category)
 		indexpagedata.Categories = append(indexpagedata.Categories, category)
@@ -55,7 +54,6 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-	fmt.Println(postpagedata)
 	config.TPL.ExecuteTemplate(w, "show.html", postpagedata)
 }
 func Create(w http.ResponseWriter, r *http.Request) {
@@ -132,7 +130,6 @@ func DeleteProcess(w http.ResponseWriter, r *http.Request) {
 }
 func CreateCommentsProcess(w http.ResponseWriter, r *http.Request) {
 	comment := r.FormValue("comment")
-	fmt.Println(comment)
 	parameters := strings.Split(r.URL.Path, "/")
 	postString := ""
 
@@ -147,14 +144,10 @@ func CreateCommentsProcess(w http.ResponseWriter, r *http.Request) {
 
 	_, user := users.GetUser(w, r)
 	alreadyloggedin := users.AlreadyLoggedIn(r)
-	fmt.Println(alreadyloggedin)
-	fmt.Println(user.ID)
-	fmt.Println(id)
 	if comment != "" {
 		if alreadyloggedin {
 			_, err := config.DB.Exec(`INSERT INTO comments(text, author_id, post_id) VALUES(?, ?, ?)`,
 				comment, user.ID, id)
-			fmt.Println("/post" + postString)
 			if err != nil {
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
