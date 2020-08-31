@@ -65,9 +65,51 @@
             | <a href="/posts/update?id={{.ThisPost.Id}}" class="card-link">update</a>
             | <a href="/posts/delete/process?id={{.ThisPost.Id}}" class="card-link">delete</a>
           </p>
+          <p class="blog-post-likes">
+            {{if .UserLiked}}
+            <div class="one-png liked">
+                <form  action="/like/{{.ThisPost.Id}}"
+                method="post">
+                <input type="hidden" name="likeordislike" value="like">
+                <button type="submit">Like</button>
+              </form>
+                {{.Likes}}
+            </div>
+            {{else}}
+            <div class="one-png">
+              <form  action="/like/{{.ThisPost.Id}}"
+              method="post">
+              <input type="hidden" name="likeordislike" value="like">
+              <button type="submit">Like</button>
+            </form>                                
+                {{.Likes}}
+            </div>
+            {{end}}
+      
+            {{if .UserDisliked}}
+            <div class="one-png disliked">
+              <form  action="/like/{{.ThisPost.Id}}"
+              method="post">
+              <input type="hidden" name="likeordislike" value="dislike">
+              <button type="submit">Dislike</button>
+            </form>                                                                
+                {{.Dislikes}}
+            </div>
+            {{else}}
+            <div class="one-png">
+              <form  action="/like/{{.ThisPost.Id}}"
+              method="post">
+              <input type="hidden" name="likeordislike" value="dislike">
+              <button type="submit">Dislike</button>
+            </form>                                                               
+                {{.Dislikes}}
+            </div>
+            {{end}}
+        </p>
         </div>
       </div>
     </div>
+
     <div class="panel panel-default">
         <div class="panel-heading">
             <p class="panel-title">

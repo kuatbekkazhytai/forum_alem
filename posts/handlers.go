@@ -39,6 +39,7 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 		return
 	}
+
 	var postpagedata PostPageData
 	var err error
 	postpagedata.LoggedIn = users.AlreadyLoggedIn(r)
@@ -54,8 +55,25 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
+	postID := postpagedata.ThisPost.Id
+	likesCount := getLikes(w, postID)
+	dislikesCount := getDislikes(w, postID)
+
+	userLiked := false
+	userDisliked := false
+	postpagedata.Likes = likesCount
+	postpagedata.Dislikes = dislikesCount
+	postpagedata.UserLiked = userLiked
+	postpagedata.UserDisliked = userDisliked
+
+	_, user := users.GetUser(w, r)
+	if users.AlreadyLoggedIn(r) {
+		userLiked = getUserLike(w, postID, int(user.ID))
+		userDisliked = getUserDislike(w, postID, int(user.ID))
+	}
 	config.TPL.ExecuteTemplate(w, "show.html", postpagedata)
 }
+
 func Create(w http.ResponseWriter, r *http.Request) {
 	if !(users.AlreadyLoggedIn(r)) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
@@ -158,4 +176,42 @@ func CreateCommentsProcess(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/login", 301)
 		}
 	}
+}
+
+func CreateLikesProcess(w http.ResponseWriter, r *http.Request) {
+	like := r.FormValue("likeordislike")
+
+	params := strings.Split(r.URL.Path, "/")
+	// fmt.Println(params)
+	postIdString := ""
+	if len(params) == 3 && params[2] != "" {
+		postIdString = params[2]
+	} else {
+		http.NotFound(w, r)
+		return
+	}
+
+	postID, err := strconv.Atoi(postIdString)
+
+	_, user := users.GetUser(w, r)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	if like != "" {
+		if users.AlreadyLoggedIn(r) {
+			if like == "like" {
+				addLike(w, postID, int(user.ID))
+			} else if like == "dislike" {
+				addDislike(w, postID, int(user.ID))
+			}
+			http.Redirect(w, r, "/post/"+postIdString, 301)
+
+		} else {
+			http.Redirect(w, r, "/login", 301)
+		}
+	}
+
+	fmt.Println(like)
 }

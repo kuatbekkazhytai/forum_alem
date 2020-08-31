@@ -1,9 +1,10 @@
 package main
 
 import (
+	"net/http"
+
 	posts "../Forum_alem/posts"
 	users "../Forum_alem/users"
-	"net/http"
 )
 
 func main() {
@@ -17,6 +18,7 @@ func main() {
 	http.HandleFunc("/posts/create", posts.Create)
 	http.HandleFunc("/posts/show", posts.Show)
 	http.HandleFunc("/comments/", posts.CreateCommentsProcess)
+	http.HandleFunc("/like/", posts.CreateLikesProcess)
 	http.HandleFunc("/posts/create/process", posts.CreateProcess)
 	http.HandleFunc("/posts/update", posts.Update)
 	http.HandleFunc("/posts/update/process", posts.UpdateProcess)

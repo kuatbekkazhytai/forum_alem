@@ -181,7 +181,6 @@ func AddToPost(w http.ResponseWriter, post Post) Post {
 	if err != nil {
 		return post
 	}
-	// }
 
 	return post
 }
@@ -254,4 +253,144 @@ func DeletePost(r *http.Request) error {
 		return errors.New("500. Internal Server Error")
 	}
 	return nil
+}
+
+func addLike(w http.ResponseWriter, postID int, userID int) {
+	// Add like
+	likeRows, err := config.DB.Query("SELECT * FROM likes WHERE post_id=? AND user_id=?", postID, userID)
+
+	if err != nil {
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+	}
+	count := 0
+	for likeRows.Next() {
+		count++
+	}
+	if count >= 1 {
+		// Remove like if exists
+		_, err = config.DB.Exec(`
+			DELETE from likes WHERE user_id=? AND post_id=?
+		`, userID, postID)
+		if err != nil {
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		}
+		//
+	} else {
+		// Ad like if not exists
+		_, err = config.DB.Exec(`
+			INSERT OR IGNORE INTO likes (user_id, post_id) VALUES (?, ?)
+		`, userID, postID)
+		if err != nil {
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		}
+	}
+
+	// Remove dislike
+	_, err = config.DB.Exec(`
+		DELETE from dislikes WHERE user_id=? AND post_id=?
+	`, userID, postID)
+	if err != nil {
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+	}
+}
+
+func addDislike(w http.ResponseWriter, postID int, userID int) {
+
+	// Add dislike
+	dislikeRows, err := config.DB.Query("SELECT * FROM dislikes WHERE post_id=? AND user_id=?", postID, userID)
+
+	if err != nil {
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+	}
+	count := 0
+	for dislikeRows.Next() {
+		count++
+	}
+	if count >= 1 {
+		// Remove dislike if exists
+		_, err = config.DB.Exec(`
+			DELETE from dislikes WHERE user_id=? AND post_id=?
+		`, userID, postID)
+		if err != nil {
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		}
+	} else {
+		// Add dislike if not exists
+		_, err = config.DB.Exec(`
+			INSERT OR IGNORE INTO dislikes (user_id, post_id) VALUES (?, ?)
+		`, userID, postID)
+		if err != nil {
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		}
+	}
+
+	// Remove like
+	_, err = config.DB.Exec(`
+		DELETE from likes WHERE user_id=? AND post_id=?
+	`, userID, postID)
+	if err != nil {
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+	}
+}
+func getLikes(w http.ResponseWriter, postID int) int {
+
+	likeRows, err := config.DB.Query("SELECT * FROM likes WHERE post_id=?", postID)
+	// likeRows, err := db.Query("SELECT * FROM likes")
+
+	if err != nil {
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+	}
+	count := 0
+	for likeRows.Next() {
+		count++
+	}
+
+	return count
+}
+
+func getDislikes(w http.ResponseWriter, postID int) int {
+
+	dislikeRows, err := config.DB.Query("SELECT * FROM dislikes WHERE post_id=?", postID)
+
+	if err != nil {
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+	}
+	count := 0
+	for dislikeRows.Next() {
+		count++
+	}
+
+	return count
+}
+func getUserLike(w http.ResponseWriter, postID int, userID int) bool {
+	likeRows, err := config.DB.Query("SELECT * FROM likes WHERE post_id=? AND user_id=?", postID, userID)
+
+	if err != nil {
+		return false
+	}
+	count := 0
+	for likeRows.Next() {
+		count++
+	}
+	if count >= 1 {
+		return true
+	}
+	return false
+}
+
+func getUserDislike(w http.ResponseWriter, postID int, userID int) bool {
+
+	likeRows, err := config.DB.Query("SELECT * FROM dislikes WHERE post_id=? AND user_id=?", postID, userID)
+
+	if err != nil {
+		return false
+	}
+	count := 0
+	for likeRows.Next() {
+		count++
+	}
+	if count >= 1 {
+		return true
+	}
+	return false
 }
