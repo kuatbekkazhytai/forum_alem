@@ -44,7 +44,10 @@
     </style>
   </head>
   <body>
+    <p>{{.LoggedIn}}</p>
+    {{if .LoggedIn}}
     <a href="/logout">LOGOUT</a>
+    {{end}}
     <div class="container">
     <h2>List Of Posts</h2>
     {{range $index, $post := .Posts}}

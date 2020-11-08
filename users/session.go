@@ -1,11 +1,11 @@
 package users
 
 import (
-	config "../config"
-	"fmt"
-	"github.com/satori/go.uuid"
 	"net/http"
 	"time"
+
+	config "../config"
+	uuid "github.com/satori/go.uuid"
 )
 
 func AlreadyLoggedIn(req *http.Request) bool {
@@ -16,11 +16,11 @@ func AlreadyLoggedIn(req *http.Request) bool {
 		//User is not logged in
 		return false
 	}
+	//Check validity of existing session
 	sessionToken := c.Value
 	err = config.DB.QueryRow("SELECT id, username, firstname, lastname FROM users WHERE session=?",
 		sessionToken).Scan(&user.ID, &user.UserName, &user.First, &user.Last)
 
-	// checkInternalServerError(err, w)
 	if err != nil {
 		return false
 	}
@@ -50,25 +50,10 @@ func createSession(w http.ResponseWriter, username string) {
 	}
 }
 
-func deleteSession(w http.ResponseWriter, userID int) {
-
+func deleteSession(w http.ResponseWriter, r *http.Request, userID int) {
 	http.SetCookie(w, &http.Cookie{
 		Name:   "session",
 		Value:  "",
 		MaxAge: -1,
 	})
-	fmt.Println("cookie deleted")
-	deleteSession, err := config.DB.Prepare(`
-		UPDATE users SET session=?
-		WHERE id=?
-	`)
-	if err != nil {
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
-	}
-	_, err = deleteSession.Exec("logout", userID)
-	if err != nil {
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
-	}
 }

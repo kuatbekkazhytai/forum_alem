@@ -11,7 +11,7 @@ func main() {
 	http.HandleFunc("/", index)
 
 	http.HandleFunc("/signup", users.Signup)
-	http.HandleFunc("/logout", users.Logou)
+	http.HandleFunc("/logout", users.Logout)
 	http.HandleFunc("/users", users.AllUsers)
 	http.HandleFunc("/login", users.Login)
 	http.HandleFunc("/posts", posts.Index)

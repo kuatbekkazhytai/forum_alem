@@ -19,6 +19,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var indexpagedata IndexPageData
 	indexpagedata.LoggedIn = users.AlreadyLoggedIn(r)
+	fmt.Printf("IsLoggedIn: %v \n", indexpagedata.LoggedIn)
 	indexpagedata.Posts, err = AllPosts()
 	indexpagedata.Posts = AddDataToPost(w, indexpagedata.Posts)
 
@@ -27,7 +28,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		category := GetCategoryName(w, post.Category)
 		indexpagedata.Categories = append(indexpagedata.Categories, category)
 	}
-	fmt.Println()
 	if err != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return

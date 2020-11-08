@@ -1,10 +1,11 @@
 package users
 
 import (
-	config "../config"
 	"database/sql"
 	"fmt"
 	"net/http"
+
+	config "../config"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -88,39 +89,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	config.TPL.ExecuteTemplate(w, "login.html", nil)
 }
 
-// func Logou(w http.ResponseWriter, r *http.Request) {
-// 	fmt.Println("im inside logou")
-// 	if alreadyLoggedIn(r) {
-// 		ok, user := GetUser(w, r)
-// 		fmt.Println(user)
-// 		fmt.Println(ok)
-// 		deleteSession(w, user.ID)
-// 		http.Redirect(w, r, "/users", 301)
-// 	} else {
-// 		fmt.Println("im here")
-// 		http.Redirect(w, r, "/login", http.StatusSeeOther)
-// 		return
-// 	}
-// 	http.Redirect(w, r, "/users", 301)
-// }
 func Logout(w http.ResponseWriter, r *http.Request) {
-	// if !alreadyLoggedIn(r) {
-	// 	fmt.Println("im here")
-	// 	http.Redirect(w, r, "/login", http.StatusSeeOther)
-	// 	return
-	// }
-	// ok, user := GetUser(w, r)
-	// fmt.Println(ok)
-	// fmt.Println(user)
-	// deleteSession(w, user.ID)
-
-	// http.Redirect(w, r, "/users", 301)
-	// fmt.Println("users")
-	http.Redirect(w, r, "/helloworld", http.StatusSeeOther)
-}
-func Logou(w http.ResponseWriter, r *http.Request) {
-
-	http.Redirect(w, r, "/helloworld", http.StatusSeeOther)
+	isLoggedIn, user := GetUser(w, r)
+	if isLoggedIn {
+		deleteSession(w, r, user.ID)
+	}
+	http.Redirect(w, r, "/post", http.StatusSeeOther)
 }
 
 func AllUsers(w http.ResponseWriter, r *http.Request) {
