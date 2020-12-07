@@ -23,6 +23,7 @@ func main() {
 	http.HandleFunc("/posts/update", posts.Update)
 	http.HandleFunc("/posts/update/process", posts.UpdateProcess)
 	http.HandleFunc("/posts/delete/process", posts.DeleteProcess)
+	http.HandleFunc("/category/", posts.CategoryHandler)
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.ListenAndServe(":8081", nil)
 }

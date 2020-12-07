@@ -1,9 +1,10 @@
 package users
 
 import (
-	config "../config"
 	"fmt"
 	"net/http"
+
+	config "../config"
 )
 
 var dbUsers = map[string]User{} // user ID, user
@@ -46,21 +47,18 @@ func GetUser(w http.ResponseWriter, r *http.Request) (bool, User) {
 	c, err := r.Cookie("session")
 	var user User
 	if err != nil {
-		//User is not logged in
 		return false, user
 	}
-
 	sessionToken := c.Value
-
 	err = config.DB.QueryRow("SELECT id, username, firstname, lastname FROM users WHERE session=?",
 		sessionToken).Scan(&user.ID, &user.UserName, &user.First, &user.Last)
-
+	// fmt.Println(user)
+	// return false, user
 	// checkInternalServerError(err, w)
 	if err != nil {
 		panic(err)
 		return false, user
 	}
-
+	fmt.Println(user)
 	return true, user
 }
-

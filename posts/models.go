@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	config "../config"
 	user "../users"
@@ -33,9 +34,10 @@ type SessionData struct {
 type IndexPageData struct {
 	IndexUser  user.User
 	LoggedIn   bool
-	Categories []string
+	Categories []Category
 	Posts      []Post
 }
+
 type PostPageData struct {
 	LoggedIn     bool
 	UserData     user.User
@@ -79,6 +81,7 @@ func getCategories(w http.ResponseWriter) []Category {
 	return categories
 }
 func GetCategoryName(w http.ResponseWriter, categoryid int) string {
+
 	categoryName := ""
 	err := config.DB.QueryRow("SELECT name FROM categories WHERE id=?",
 		categoryid).Scan(&categoryName)
@@ -208,12 +211,13 @@ func PutPost(r *http.Request, user user.User) (Post, error) {
 	fmt.Println(post.Description)
 	fmt.Println(user.ID)
 	fmt.Println(categoryid)
-
+	time := time.Now()
 	if post.Title == "" || post.Description == "" {
 		return post, errors.New("400. Bad request. All fields must be complete.")
 	}
-	statement, err := config.DB.Prepare("INSERT INTO posts (title, description,author_id, category_id) VALUES (?, ?, ?, ?)") //, post.Title, post.Description)
-	statement.Exec(post.Title, post.Description, user.ID, categoryid)
+	statement, err := config.DB.Prepare("INSERT INTO posts (title, description, timestamp, author_id, category_id) VALUES (?, ?, ?, ?, ?)") //, post.Title, post.Description)
+
+	statement.Exec(post.Title, post.Description, time, user.ID, categoryid)
 	if err != nil {
 		fmt.Println(err)
 		return post, errors.New("500. Internal Server Error." + err.Error())
@@ -221,6 +225,7 @@ func PutPost(r *http.Request, user user.User) (Post, error) {
 
 	return post, nil
 }
+
 func UpdatePost(r *http.Request) error {
 	var post Post
 	id := r.FormValue("id")
