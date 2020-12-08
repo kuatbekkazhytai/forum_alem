@@ -80,6 +80,7 @@ func getCategories(w http.ResponseWriter) []Category {
 	}
 	return categories
 }
+
 func GetCategoryName(w http.ResponseWriter, categoryid int) string {
 
 	categoryName := ""
@@ -110,6 +111,7 @@ func getComments(w http.ResponseWriter, postID int) []Comment {
 	}
 	return comments
 }
+
 func AddDataToComments(w http.ResponseWriter, comments []Comment) []Comment {
 
 	for i, comment := range comments {
@@ -123,7 +125,6 @@ func AddDataToComments(w http.ResponseWriter, comments []Comment) []Comment {
 		comments[i].Timestamp = tempTimeArray[0]
 
 	}
-
 	return comments
 }
 
@@ -150,6 +151,8 @@ func AllPosts() ([]Post, error) {
 	}
 	return ps, nil
 }
+
+//AddDataToPost function adds data to post
 func AddDataToPost(w http.ResponseWriter, posts []Post) []Post {
 
 	for i, post := range posts {
@@ -170,6 +173,8 @@ func AddDataToPost(w http.ResponseWriter, posts []Post) []Post {
 
 	return posts
 }
+
+//AddToPost function
 func AddToPost(w http.ResponseWriter, post Post) Post {
 
 	err := config.DB.QueryRow("SELECT username FROM users WHERE id=?", post.Author).Scan(&post.AuthorName)

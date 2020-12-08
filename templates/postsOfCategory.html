@@ -23,7 +23,7 @@
         <header class="blog-header py-3">
             <div class="row flex-nowrap justify-content-between align-items-center">
                 <div class="col-4">
-                    <a class="blog-header-logo text-dark" href="/">ForumGo</a>
+                    <a class="blog-header-logo text-dark" href="/">ForumAlem</a>
                 </div>
                 <div class="col-4 d-flex justify-content-end align-items-center">
                     {{if .LoggedIn}}
@@ -45,11 +45,32 @@
             </nav>
         </div>
 
-        {{range $index, $post := .Posts}}
-                ID: {{$post.Id}}<br>
-                Tite: {{$post.Title}}<br>
-                Description : {{$post.Description}}<br>
-        {{end}}
+        <div class="container">
+            <h2>List Of Posts</h2>
+            {{range $index, $post := .Posts}}
+            <div class="post">
+              <div class="card text-center">
+                <div class="card-header">
+                  <div class="card-title"><a href="/posts/show?id={{$post.Id}}"><h3>{{$post.Title}}</h3></a></div>
+                </div>
+                <div class="card-body">
+                  
+                  <p class="card-text">{{$post.Description}}</p>
+                </div>
+                <div class="card-footer text-muted">
+                  <p class="footer-p">
+                    <i class="icon-user"></i> by {{$post.AuthorName}}
+                  | <i class="icon-calendar"></i> {{$post.Timestamp}}
+                  | Category: {{$post.CategoryName}}
+                </p>
+                </div>
+              </div>
+            </div>
+            <br>
+            {{end}}
+        
+            <a href="/posts/create" class="btn btn-primary mx-auto">Please,create a post</a>
+            </div>
         
     </div>
 

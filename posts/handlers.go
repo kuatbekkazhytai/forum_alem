@@ -49,6 +49,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func Show(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method != "GET" {
 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 		return
@@ -89,6 +90,7 @@ func Show(w http.ResponseWriter, r *http.Request) {
 }
 
 func Create(w http.ResponseWriter, r *http.Request) {
+
 	if !(users.AlreadyLoggedIn(r)) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -119,6 +121,7 @@ func CreateProcess(w http.ResponseWriter, r *http.Request) {
 
 // Update ...
 func Update(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method != "GET" {
 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 		return
@@ -138,6 +141,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateProcess(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method != "POST" {
 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 		return
@@ -152,6 +156,7 @@ func UpdateProcess(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteProcess(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method != "GET" {
 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 		return
@@ -232,7 +237,7 @@ func CreateLikesProcess(w http.ResponseWriter, r *http.Request) {
 }
 
 func CategoryHandler(w http.ResponseWriter, r *http.Request) {
-	// fmt.Println("im here")
+
 	parameters := strings.Split(r.URL.Path, "/")
 	param := ""
 	if len(parameters) == 3 && parameters[2] != "" {
@@ -242,36 +247,35 @@ func CategoryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	categoryId, err := strconv.Atoi(param)
+	categoryID, err := strconv.Atoi(param)
 
 	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
 
-	posts, err := getCategoryPosts(w, categoryId)
+	posts, err := getCategoryPosts(w, categoryID)
 
 	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
 
-	category, err := getCategoryName(w, categoryId)
+	category, err := getCategoryName(w, categoryID)
 
 	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
 	fmt.Println(category)
-
 	categories := getCategories(w)
 
 	alreadyloggedin := users.AlreadyLoggedIn(r)
 
 	var templateData IndexPageData
-
 	templateData.Categories = categories
 	templateData.Posts = posts
+	templateData.Posts = AddDataToPost(w, templateData.Posts)
 	// templateData.IndexUser = user
 	templateData.LoggedIn = alreadyloggedin
 	// templateData.Categories = category
@@ -281,7 +285,7 @@ func CategoryHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getCategoryPosts(w http.ResponseWriter, categoryID int) ([]Post, error) {
-	// var postID int64
+
 	var posts []Post
 	var post Post
 	var err error
@@ -302,6 +306,7 @@ func getCategoryPosts(w http.ResponseWriter, categoryID int) ([]Post, error) {
 		posts = append(posts, post)
 	}
 	fmt.Println(posts)
+
 	return posts, err
 }
 
@@ -314,56 +319,55 @@ func getCategoryName(w http.ResponseWriter, categoryID int) (string, error) {
 	return categoryName, err
 }
 
-func formatPosts(w http.ResponseWriter, posts []Post) []Post {
-	var err error
+// func formatPosts(w http.ResponseWriter, posts []Post) []Post {
+// 	var err error
 
-	for i, post := range posts {
-		err = config.DB.QueryRow("SELECT username FROM users WHERE id=?",
-			post.Author).Scan(&posts[i].AuthorName)
-		if err != nil {
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-			return posts
-		}
-		tempTimeArray := strings.Split(post.Timestamp, "T")
-		posts[i].Timestamp = tempTimeArray[0]
+// 	for i, post := range posts {
+// 		err = config.DB.QueryRow("SELECT username FROM users WHERE id=?",
+// 			post.Author).Scan(&posts[i].AuthorName)
+// 		if err != nil {
+// 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+// 			return posts
+// 		}
+// 		tempTimeArray := strings.Split(post.Timestamp, "T")
+// 		posts[i].Timestamp = tempTimeArray[0]
 
-		tempContentArray := strings.Split(post.Description, " ")
-		tempContentString := ""
-		if len(tempContentArray) > 20 {
-			tempContentArray = tempContentArray[:20]
-		}
-		for i, str := range tempContentArray {
-			if i != 0 {
-				tempContentString += " "
-			}
-			tempContentString += str
-		}
-		posts[i].Description = tempContentString
+// 		tempContentArray := strings.Split(post.Description, " ")
+// 		tempContentString := ""
+// 		if len(tempContentArray) > 20 {
+// 			tempContentArray = tempContentArray[:20]
+// 		}
+// 		for i, str := range tempContentArray {
+// 			if i != 0 {
+// 				tempContentString += " "
+// 			}
+// 			tempContentString += str
+// 		}
+// 		posts[i].Description = tempContentString
 
-		var category Category
-		var categories []Category
+// 		var category Category
+// 		var categories []Category
 
-		categoriesOfPost, err := config.DB.Query("SELECT category_id FROM postcategories WHERE post_id=?", post.Id)
-		for categoriesOfPost.Next() {
-			err = categoriesOfPost.Scan(&category.ID)
-			if err != nil {
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return posts
-			}
+// 		categoriesOfPost, err := config.DB.Query("SELECT category_id FROM postcategories WHERE post_id=?", post.Id)
+// 		for categoriesOfPost.Next() {
+// 			err = categoriesOfPost.Scan(&category.ID)
+// 			if err != nil {
+// 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+// 				return posts
+// 			}
 
-			err = config.DB.QueryRow("SELECT name FROM categories WHERE id=?",
-				category.ID).Scan(&category.Name)
-			if err != nil {
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return posts
-			}
+// 			err = config.DB.QueryRow("SELECT name FROM categories WHERE id=?",
+// 				category.ID).Scan(&category.Name)
+// 			if err != nil {
+// 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+// 				return posts
+// 			}
 
-			categories = append(categories, category)
+// 			categories = append(categories, category)
 
-		}
+// 		}
 
-		// posts[i].Categories = categories
-	}
+// 	}
 
-	return posts
-}
+// 	return posts
+// }
