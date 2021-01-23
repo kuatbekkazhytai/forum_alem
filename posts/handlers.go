@@ -49,12 +49,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func Show(w http.ResponseWriter, r *http.Request) {
-
-	if r.Method != "GET" {
-		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
-		return
-	}
-
 	var postpagedata PostPageData
 	var err error
 	postpagedata.LoggedIn = users.AlreadyLoggedIn(r)

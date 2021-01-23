@@ -25,28 +25,24 @@
                 <div class="col-4">
                     <a class="blog-header-logo text-dark" href="/">ForumAlem</a>
                 </div>
-                <div class="col-4 d-flex justify-content-end align-items-center">
-                    {{if .LoggedIn}}
-                    Hello
-                    {{else}}
-                    <a class="btn btn-sm btn-outline-secondary" href="/login">Login</a>
-                    {{end}}
-
-                </div>
             </div>
         </header>
-
-
-        <div class="nav-scroller py-1 mb-2">
+        <div class="container">
+          <div style="width: 100%" class="d-flex flex-row-reverse">
+            {{if .LoggedIn}}
+            <a type="button" class="btn btn-light" href="/logout" style="margin-right: 10px;">log out</a>        
+            <a href="/posts/create" class="btn btn-primary" style="margin-right: 10px;">create a post</a>
+            {{else}}
+            <a type="button" class="btn btn-light" href="/login" style="margin-right: 10px;">sign in</a>
+            {{end}}
+          </div>
+          <div class="nav-scroller py-1 mb-2">
             <nav class="nav d-flex">
               {{range $index, $category := .Categories}}
               <a class="p-2 text-muted" href="/category/{{$category.ID}}">{{$category.Name}}</a>              
               {{end}}
             </nav>
-        </div>
-
-        <div class="container">
-            <h2>List Of Posts</h2>
+          </div>
             {{range $index, $post := .Posts}}
             <div class="post">
               <div class="card text-center">
@@ -68,10 +64,6 @@
             </div>
             <br>
             {{end}}
-        
-            <a href="/posts/create" class="btn btn-primary mx-auto">Please,create a post</a>
-            </div>
-        
     </div>
 
 
