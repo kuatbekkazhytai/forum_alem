@@ -50,8 +50,11 @@
             | <i class="icon-calendar"></i> {{.ThisPost.Timestamp}}
             | <i class="icon-tags"></i> Category : <span class="label label-info">{{.ThisPost.CategoryName}}</span>
             {{if .LoggedIn}}
-            | <a href="/posts/update?id={{.ThisPost.Id}}" class="card-link">update</a>
-            | <a href="/posts/delete/process?id={{.ThisPost.Id}}" class="card-link">delete</a>
+              {{if eq .UserData.UserName .ThisPost.AuthorName}}
+              
+                | <a href="/posts/update?id={{.ThisPost.Id}}" class="card-link">update</a>
+                | <a href="/posts/delete/process?id={{.ThisPost.Id}}" class="card-link">delete</a>
+                {{end}}
             {{end}}
           </p>
           <p class="blog-post-likes">

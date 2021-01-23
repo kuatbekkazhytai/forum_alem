@@ -59,6 +59,6 @@ func GetUser(w http.ResponseWriter, r *http.Request) (bool, User) {
 		panic(err)
 		return false, user
 	}
-	fmt.Println(user)
+	// fmt.Println(user)
 	return true, user
 }

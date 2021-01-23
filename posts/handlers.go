@@ -53,8 +53,10 @@ func Show(w http.ResponseWriter, r *http.Request) {
 	var err error
 	postpagedata.LoggedIn = users.AlreadyLoggedIn(r)
 	_, postpagedata.UserData = users.GetUser(w, r)
+	// fmt.Println(postpagedata.UserData.UserName)
 	postpagedata.ThisPost, err = OnePost(r)
 	postpagedata.ThisPost = AddToPost(w, postpagedata.ThisPost)
+	fmt.Println(postpagedata.UserData.UserName, postpagedata.ThisPost.AuthorName)
 	postpagedata.Comments = getComments(w, postpagedata.ThisPost.Id)
 	postpagedata.Comments = AddDataToComments(w, postpagedata.Comments)
 	if err == sql.ErrNoRows {
