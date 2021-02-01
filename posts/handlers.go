@@ -20,10 +20,19 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}
 	var err error
 	var indexpagedata IndexPageData
-	indexpagedata.LoggedIn = users.AlreadyLoggedIn(r)
 
-	fmt.Printf("IsLoggedIn: %v \n", indexpagedata.LoggedIn)
-	indexpagedata.Posts, err = AllPosts()
+	var isLoggedIn = users.AlreadyLoggedIn(r)
+
+	var user users.User
+	if isLoggedIn {
+		var noErr, data = users.GetUser(w, r)
+		if noErr {
+			user = data
+		}
+	}
+
+	indexpagedata.LoggedIn = isLoggedIn
+	indexpagedata.Posts, err = AllPosts(isLoggedIn, user)
 
 	indexpagedata.Posts = AddDataToPost(w, indexpagedata.Posts)
 	if indexpagedata.LoggedIn {
@@ -236,6 +245,7 @@ func CategoryHandler(w http.ResponseWriter, r *http.Request) {
 
 	parameters := strings.Split(r.URL.Path, "/")
 	param := ""
+	fmt.Printf("Parameters: %v", parameters)
 	if len(parameters) == 3 && parameters[2] != "" {
 		param = parameters[2]
 	} else {

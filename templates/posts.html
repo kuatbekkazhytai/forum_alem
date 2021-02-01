@@ -43,7 +43,7 @@
       
     </style>
   </head>
-  <body>    
+  <body onload="onPageLoad({{.}})">   
     <div class="container">
       <div style="width: 100%" class="d-flex flex-row-reverse">
         {{if .LoggedIn}}
@@ -60,8 +60,22 @@
           {{end}}
         </nav>
       </div>
+      {{if .LoggedIn}}
+      <div class="nav-scroller py-1 mb-2">
+        <nav class="nav d-flex">
+          <p>
+            <input id="isLiked" type="checkbox" onclick="IsLiked()">
+            <span style="margin-left: 5px;">liked posts</span>
+          </p>
+          <p>
+            <input id="isMyPost" type="checkbox" onclick="IsMyPost()">
+            <span style="margin-left: 5px;">created posts</span>
+          </p>
+        </nav>
+      </div>
+      {{end}}
     {{range $index, $post := .Posts}}
-    <div class="post">
+    <div class="post" id="post-{{$post.Id}}">
       <div class="card text-center">
         <div class="card-header">
           <div class="card-title"><a href="/posts/show?id={{$post.Id}}"><h3>{{$post.Title}}</h3></a></div>
@@ -83,3 +97,59 @@
     </div>
   </body>
 </html>
+
+
+
+<script>
+  var category = [];
+  var isLiked = false;
+  var isMyPost = false;
+  var posts = [];
+
+  var IsLiked = function(){
+    var checkBox = document.getElementById("isLiked");
+    if (checkBox.checked == true)
+      isLiked = true;
+    else
+      isLiked = false;
+    FilterSelected();
+  }
+
+  var IsMyPost = function(){
+    var checkBox = document.getElementById("isMyPost");
+    if (checkBox.checked == true)
+      isMyPost = true;
+    else
+      isMyPost = false;
+    FilterSelected();
+  }
+
+  var FilterSelected = function(){
+    Reset();
+    for(var p of posts){
+      debugger
+      if(isMyPost && !p.IsMyPost)
+        document.getElementById("post-" + p.Id).style.display = "none";
+      if(isLiked && !p.IsLiked)
+        document.getElementById("post-" + p.Id).style.display = "none";
+    }
+  }
+
+  var Reset = function(){
+    for(var p of posts){
+      document.getElementById("post-" + p.Id).style.display = "block";
+    }
+  }
+
+  var ResetFilters = function(){
+    document.getElementById("isMyPost").checked = false;
+    document.getElementById("isLiked").checked = false;
+  }
+
+  var onPageLoad = function(data){
+    //console.log(data)
+    ResetFilters();
+    posts = data.Posts;
+  }
+  
+</script>

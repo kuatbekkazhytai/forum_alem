@@ -21,6 +21,8 @@ type Post struct {
 	AuthorName   string
 	Category     int
 	CategoryName string
+	IsLiked      bool
+	IsMyPost     bool
 }
 
 type SessionData struct {
@@ -128,7 +130,7 @@ func AddDataToComments(w http.ResponseWriter, comments []Comment) []Comment {
 	return comments
 }
 
-func AllPosts() ([]Post, error) {
+func AllPosts(isLoggedIn bool, user user.User) ([]Post, error) {
 
 	rows, err := config.DB.Query("SELECT * FROM posts")
 	if err != nil {
@@ -143,6 +145,31 @@ func AllPosts() ([]Post, error) {
 			return nil, err
 		}
 		ps = append(ps, post)
+
+		var lastItem = ps[len(ps)-1]
+		if !isLoggedIn {
+			ps[len(ps)-1].IsLiked = false
+			ps[len(ps)-1].IsMyPost = false
+		} else {
+			//check is my post
+			if lastItem.Author == user.ID {
+				ps[len(ps)-1].IsMyPost = true
+			} else {
+				ps[len(ps)-1].IsMyPost = false
+			}
+
+			//check is liked post
+			likeRows, _ := config.DB.Query("SELECT * FROM likes WHERE post_id=? AND user_id=?", lastItem.Id, user.ID)
+			count := 0
+			for likeRows.Next() {
+				count++
+			}
+			if count > 0 {
+				ps[len(ps)-1].IsLiked = true
+			} else {
+				ps[len(ps)-1].IsLiked = false
+			}
+		}
 
 	}
 	err = rows.Err()
